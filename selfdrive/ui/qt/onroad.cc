@@ -1425,41 +1425,6 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass && !scene.hide_map_icon);
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
-
-  // Update the turn signal animation images upon toggle change
-  if (customSignals != scene.custom_signals || currentHolidayTheme != scene.current_holiday_theme) {
-    currentHolidayTheme = scene.current_holiday_theme;
-    customSignals = scene.custom_signals;
-
-    if (currentHolidayTheme != 0) {
-      auto themeConfigIt = holidayThemeConfiguration.find(currentHolidayTheme);
-      QString themeConfigKey = themeConfigIt != holidayThemeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
-      themePath = QString("../frogpilot/assets/holiday_themes/%1/images").arg(themeConfigKey);
-      availableImages = std::get<1>(themeConfigIt->second);
-    } else {
-      auto themeConfigIt = themeConfiguration.find(customSignals);
-      QString themeConfigKey = themeConfigIt != themeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
-      themePath = QString("../frogpilot/assets/custom_themes/%1/images").arg(themeConfigKey);
-      availableImages = std::get<1>(themeConfigIt->second);
-    }
-
-    for (int i = 1; i <= totalFrames; ++i) {
-      int imageIndex = ((i - 1) % availableImages) + 1;
-      QString imagePath = themePath + QString("/turn_signal_%1.png").arg(imageIndex);
-      imagePaths.push_back(imagePath);
-    }
-
-    signalImgVector.clear();
-    signalImgVector.reserve(2 * imagePaths.size());  // Reserve space for both regular and flipped images
-    for (const QString &imagePath : imagePaths) {
-      QPixmap pixmap(imagePath);
-      signalImgVector.push_back(pixmap);  // Regular image
-      signalImgVector.push_back(pixmap.transformed(QTransform().scale(-1, 1)));  // Flipped image
-    }
-
-    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png"));  // Regular blindspot image
-    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png").transformed(QTransform().scale(-1, 1)));  // Flipped blindspot image
-  }
 }
 
 Compass::Compass(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
