@@ -550,10 +550,6 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   QHBoxLayout *buttons_layout = new QHBoxLayout();
   buttons_layout->setSpacing(0);
 
-  // Neokii screen recorder
-  recorder_btn = new ScreenRecorder(this);
-  buttons_layout->addWidget(recorder_btn);
-
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
 
@@ -1115,12 +1111,8 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
 }
 
 void AnnotatedCameraWidget::paintGL() {
-}
-
-void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   UIState *s = uiState();
   SubMaster &sm = *(s->sm);
-  QPainter painter(this);
   const double start_draw_t = millis_since_boot();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
   const float v_ego = sm["carState"].getCarState().getVEgo();
@@ -1170,7 +1162,10 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     CameraWidget::paintGL();
     painter.endNativePainting();
   }
+  CameraWidget::setFrameId(model.getFrameId());
+  CameraWidget::paintGL();
 
+  QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setPen(Qt::NoPen);
 
@@ -1292,15 +1287,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   connect(animationTimer, &QTimer::timeout, this, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
-
-  // Initialize the timer for the screen recorder
-  QTimer *record_timer = new QTimer(this);
-  connect(record_timer, &QTimer::timeout, this, [this]() {
-    if (recorder_btn) {
-      recorder_btn->update_screen();
-    }
-  });
-  record_timer->start(1000 / UI_FREQ);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets() {
@@ -1439,7 +1425,40 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
 
-  recorder_btn->setVisible(scene.screen_recorder && !mapOpen);
+  // Update the turn signal animation images upon toggle change
+  if (customSignals != scene.custom_signals || currentHolidayTheme != scene.current_holiday_theme) {
+    currentHolidayTheme = scene.current_holiday_theme;
+    customSignals = scene.custom_signals;
+
+    if (currentHolidayTheme != 0) {
+      auto themeConfigIt = holidayThemeConfiguration.find(currentHolidayTheme);
+      QString themeConfigKey = themeConfigIt != holidayThemeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
+      themePath = QString("../frogpilot/assets/holiday_themes/%1/images").arg(themeConfigKey);
+      availableImages = std::get<1>(themeConfigIt->second);
+    } else {
+      auto themeConfigIt = themeConfiguration.find(customSignals);
+      QString themeConfigKey = themeConfigIt != themeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
+      themePath = QString("../frogpilot/assets/custom_themes/%1/images").arg(themeConfigKey);
+      availableImages = std::get<1>(themeConfigIt->second);
+    }
+
+    for (int i = 1; i <= totalFrames; ++i) {
+      int imageIndex = ((i - 1) % availableImages) + 1;
+      QString imagePath = themePath + QString("/turn_signal_%1.png").arg(imageIndex);
+      imagePaths.push_back(imagePath);
+    }
+
+    signalImgVector.clear();
+    signalImgVector.reserve(2 * imagePaths.size());  // Reserve space for both regular and flipped images
+    for (const QString &imagePath : imagePaths) {
+      QPixmap pixmap(imagePath);
+      signalImgVector.push_back(pixmap);  // Regular image
+      signalImgVector.push_back(pixmap.transformed(QTransform().scale(-1, 1)));  // Flipped image
+    }
+
+    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png"));  // Regular blindspot image
+    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png").transformed(QTransform().scale(-1, 1)));  // Flipped blindspot image
+  }
 }
 
 Compass::Compass(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
