@@ -227,12 +227,12 @@ def user_soft_disable_alert(alert_text_2: str) -> AlertCallbackType:
     return UserSoftDisableAlert(alert_text_2)
   return func
 
-def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
-  branch = get_short_branch()  # Ensure get_short_branch is cached to avoid lags on startup
-  if "REPLAY" in os.environ:
-    branch = "replay"
-
-  return StartupAlert("Hippity hoppity this is my property", "so I do what I want 🐸", alert_status=AlertStatus.frogpilot)
+# def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
+#   branch = get_short_branch()  # Ensure get_short_branch is cached to avoid lags on startup
+#   if "REPLAY" in os.environ:
+#     branch = "replay"
+#
+#   return StartupAlert("Hippity hoppity this is my property", "so I do what I want 🐸", alert_status=AlertStatus.frogpilot)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
   return NoEntryAlert(f"Drive above {get_display_speed(CP.minEnableSpeed, metric)} to engage")
@@ -407,7 +407,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.startupMaster: {
-    ET.PERMANENT: startup_master_alert,
+    #ET.PERMANENT: startup_master_alert,
   },
 
   # Car is recognized, but marked as dashcam only
