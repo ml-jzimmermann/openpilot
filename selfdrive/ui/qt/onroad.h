@@ -212,7 +212,6 @@ private:
   Compass *compass_img;
   DistanceButton *distance_btn;
   PedalIcons *pedal_icons;
-  PersonalityButton *personality_btn;
 
   QHBoxLayout *bottom_layout;
 
