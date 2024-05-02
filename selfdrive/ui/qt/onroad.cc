@@ -422,7 +422,8 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
     {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
     {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
     {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
-    {7, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})},
+    {7, loadPixmap("../frogpilot/assets/wheel_images/seat.png", {img_size, img_size})},
+    {8, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})}
   };
 
   wheelImagesGif[1] = new QMovie("../frogpilot/assets/random_events/images/weeb_wheel.gif", QByteArray(), this);
@@ -468,7 +469,7 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
     static int rotationDegree = 0;
     rotationDegree = (rotationDegree + 36) % 360;
     steeringAngleDeg = rotationDegree;
-    wheelIcon = 7;
+    wheelIcon = 8;
     update();
 
   } else if (randomEvent == 2 || randomEvent == 3 || randomEvent == 4) {
@@ -508,7 +509,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QColor background_color = wheelIcon != 0 && !isDown() && engageable ?
     (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
     (scene.conditional_status == 1 || scene.conditional_status == 3 || scene.conditional_status == 5 ? QColor(255, 246, 0, 255) :
-    (experimental_mode ? QColor(218, 111, 37, 241) :
+    (experimental_mode ? QColor(143, 19, 19, 241) :
     (scene.traffic_mode_active ? QColor(201, 34, 49, 255) :
     (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166)))))) :
     QColor(0, 0, 0, 166);
