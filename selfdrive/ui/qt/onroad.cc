@@ -1158,13 +1158,9 @@ void AnnotatedCameraWidget::paintGL() {
     } else {
       CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
     }
-    painter.beginNativePainting();
     CameraWidget::setFrameId(model.getFrameId());
     CameraWidget::paintGL();
-    painter.endNativePainting();
   }
-  CameraWidget::setFrameId(model.getFrameId());
-  CameraWidget::paintGL();
 
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
