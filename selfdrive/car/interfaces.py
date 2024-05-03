@@ -189,6 +189,7 @@ class CarInterfaceBase(ABC):
     self.no_steer_warning = False
     self.silent_steer_warning = True
     self.v_ego_cluster_seen = False
+    self.res_previously_pressed = False
 
     self.CS = None
     self.can_parsers = []
@@ -509,6 +510,18 @@ class CarInterfaceBase(ABC):
       self.traffic_mode_changed = frogpilot_variables.experimental_mode_via_distance
 
     return self.gap_counter >= CRUISE_LONG_PRESS
+
+  def update_cestatus_lkas(self):
+    # Set "CEStatus" to work with "Conditional Experimental Mode"
+    conditional_status = self.params_memory.get_int("CEStatus")
+    override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 5 if conditional_status >= 7 else 6
+    self.params_memory.put_int("CEStatus", override_value)
+
+  def update_experimental_mode(self):
+    experimental_mode = self.params.get_bool("ExperimentalMode")
+    # Invert the value of "ExperimentalMode"
+    self.params.put_bool("ExperimentalMode", not experimental_mode)
+
 
 class RadarInterfaceBase(ABC):
   def __init__(self, CP):
