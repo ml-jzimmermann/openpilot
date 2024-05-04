@@ -150,17 +150,17 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = bool(pt_cp.vl["Kombi_03"]["KBI_Variante"])
 
     # CEM switch via wheel
-    # if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available:
-    #   res_button_pressed = pt_cp.vl["GRA_ACC_01"]["GRA_Tip_Wiederaufnahme"]
-    #   if not ret.cruiseState.enabled:
-    #     self.res_previously_pressed = res_button_pressed
-    #   if ret.cruiseState.enabled:
-    #     if res_button_pressed and not self.res_previously_pressed:
-    #       if frogpilot_variables.conditional_experimental_mode:
-    #         self.update_cestatus_lkas()
-    #       else:
-    #         self.update_experimental_mode()
-    #     self.res_previously_pressed = res_button_pressed
+    if ret.cruiseState.available:
+      res_button_pressed = pt_cp.vl["GRA_ACC_01"]["GRA_Tip_Wiederaufnahme"]
+      if not ret.cruiseState.enabled:
+        self.res_previously_pressed = res_button_pressed
+      if ret.cruiseState.enabled:
+        if res_button_pressed and not self.res_previously_pressed:
+          if frogpilot_variables.conditional_experimental_mode:
+            self.update_cestatus_lkas()
+          else:
+            self.update_experimental_mode()
+        self.res_previously_pressed = res_button_pressed
 
     self.frame += 1
     return ret

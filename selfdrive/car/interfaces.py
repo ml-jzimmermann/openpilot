@@ -189,7 +189,6 @@ class CarInterfaceBase(ABC):
     self.no_steer_warning = False
     self.silent_steer_warning = True
     self.v_ego_cluster_seen = False
-    self.res_previously_pressed = False
 
     self.CS = None
     self.can_parsers = []
@@ -570,6 +569,7 @@ class CarStateBase(ABC):
     self.cruise_increased_previously = False
     self.lkas_enabled = False
     self.lkas_previously_enabled = False
+    self.res_previously_pressed = False
 
     self.prev_distance_button = 0
     self.distance_button = 0
