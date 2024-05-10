@@ -549,6 +549,7 @@ class CarStateBase(ABC):
     self.v_ego_kf = KF1D(x0=x0, A=A, C=C[0], K=K)
 
     # FrogPilot variables
+    self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
     self.cruise_decreased = False
@@ -557,9 +558,22 @@ class CarStateBase(ABC):
     self.cruise_increased_previously = False
     self.lkas_enabled = False
     self.lkas_previously_enabled = False
+    self.res_previously_pressed = False
 
     self.prev_distance_button = 0
     self.distance_button = 0
+
+  # FrogPilot functions
+  def update_cestatus_lkas(self):
+    # Set "CEStatus" to work with "Conditional Experimental Mode"
+    conditional_status = self.params_memory.get_int("CEStatus")
+    override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 5 if conditional_status >= 7 else 6
+    self.params_memory.put_int("CEStatus", override_value)
+
+  def update_experimental_mode(self):
+    experimental_mode = self.params.get_bool("ExperimentalMode")
+    # Invert the value of "ExperimentalMode"
+    self.params.put_bool("ExperimentalMode", not experimental_mode)
 
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed

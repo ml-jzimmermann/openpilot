@@ -422,7 +422,8 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
     {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
     {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
     {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
-    {7, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})},
+    {7, loadPixmap("../frogpilot/assets/wheel_images/seat.png", {img_size, img_size})},
+    {8, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})}
   };
 
   wheelImagesGif[1] = new QMovie("../frogpilot/assets/random_events/images/weeb_wheel.gif", QByteArray(), this);
@@ -468,7 +469,7 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
     static int rotationDegree = 0;
     rotationDegree = (rotationDegree + 36) % 360;
     steeringAngleDeg = rotationDegree;
-    wheelIcon = 7;
+    wheelIcon = 8;
     update();
 
   } else if (randomEvent == 2 || randomEvent == 3 || randomEvent == 4) {
@@ -508,7 +509,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QColor background_color = wheelIcon != 0 && !isDown() && engageable ?
     (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
     (scene.conditional_status == 1 || scene.conditional_status == 3 || scene.conditional_status == 5 ? QColor(255, 246, 0, 255) :
-    (experimental_mode ? QColor(218, 111, 37, 241) :
+    (experimental_mode ? QColor(143, 19, 19, 241) :
     (scene.traffic_mode_active ? QColor(201, 34, 49, 255) :
     (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166)))))) :
     QColor(0, 0, 0, 166);
@@ -549,10 +550,6 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
 
   QHBoxLayout *buttons_layout = new QHBoxLayout();
   buttons_layout->setSpacing(0);
-
-  // Neokii screen recorder
-  recorder_btn = new ScreenRecorder(this);
-  buttons_layout->addWidget(recorder_btn);
 
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
@@ -1097,16 +1094,13 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
   painter.drawPolygon(chevron, std::size(chevron));
 
   if (leadInfo) {
-    float lead_speed = std::max(v_rel + v_ego, 0.0f);
-
+    // Form the text and center it below the chevron
     painter.setPen(Qt::white);
     painter.setFont(InterFont(35, QFont::Bold));
 
-    QString text = QString("%1 %2 | %3 %4")
-                      .arg(qRound(d_rel * distanceConversion))
-                      .arg(leadDistanceUnit)
-                      .arg(qRound(lead_speed * speedConversion))
-                      .arg(leadSpeedUnit);
+    QString text = QString("%1 %2")
+                           .arg(qRound(d_rel * distanceConversion))
+                           .arg(leadDistanceUnit);
 
     QFontMetrics metrics(painter.font());
     int middle_x = (chevron[2].x() + chevron[0].x()) / 2;
@@ -1118,12 +1112,8 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
 }
 
 void AnnotatedCameraWidget::paintGL() {
-}
-
-void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   UIState *s = uiState();
   SubMaster &sm = *(s->sm);
-  QPainter painter(this);
   const double start_draw_t = millis_since_boot();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
   const float v_ego = sm["carState"].getCarState().getVEgo();
@@ -1168,12 +1158,11 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     } else {
       CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
     }
-    painter.beginNativePainting();
     CameraWidget::setFrameId(model.getFrameId());
     CameraWidget::paintGL();
-    painter.endNativePainting();
   }
 
+  QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setPen(Qt::NoPen);
 
@@ -1295,15 +1284,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   connect(animationTimer, &QTimer::timeout, this, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
-
-  // Initialize the timer for the screen recorder
-  QTimer *record_timer = new QTimer(this);
-  connect(record_timer, &QTimer::timeout, this, [this]() {
-    if (recorder_btn) {
-      recorder_btn->update_screen();
-    }
-  });
-  record_timer->start(1000 / UI_FREQ);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets() {
@@ -1441,8 +1421,6 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass && !scene.hide_map_icon);
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
-
-  recorder_btn->setVisible(scene.screen_recorder && !mapOpen);
 }
 
 Compass::Compass(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
