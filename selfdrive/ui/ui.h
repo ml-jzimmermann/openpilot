@@ -83,7 +83,7 @@ const QColor bg_colors [] = {
   // FrogPilot colors
   [STATUS_ALWAYS_ON_LATERAL_ENABLED] = QColor(0x0a, 0xba, 0xb5, 0xf1),
   [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
-  [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
+  [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0x8f, 0x13, 0x13, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
   [STATUS_TRAFFIC_MODE_ACTIVE] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
