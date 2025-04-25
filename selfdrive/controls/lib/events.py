@@ -227,12 +227,12 @@ def user_soft_disable_alert(alert_text_2: str) -> AlertCallbackType:
     return UserSoftDisableAlert(alert_text_2)
   return func
 
-#def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-#  branch = get_short_branch()  # Ensure get_short_branch is cached to avoid lags on startup
-#  if "REPLAY" in os.environ:
-#    branch = "replay"
-#
-#  return StartupAlert("WARNING: This branch is not tested", branch, alert_status=AlertStatus.userPrompt)
+def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
+  branch = get_short_branch()  # Ensure get_short_branch is cached to avoid lags on startup
+  if "REPLAY" in os.environ:
+    branch = "replay"
+
+  return StartupAlert("WARNING: This branch is not tested", branch, alert_status=AlertStatus.userPrompt)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   return NoEntryAlert(f"Drive above {get_display_speed(CP.minEnableSpeed, metric)} to engage")
@@ -330,8 +330,8 @@ def joystick_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster,
 
 
 # FrogPilot Alerts
-#def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-#  return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=AlertStatus.frogpilot)
+def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=AlertStatus.frogpilot)
 
 
 def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
@@ -412,11 +412,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.startup: {
-    #ET.PERMANENT: StartupAlert("Be ready to take over at any time")
+    ET.PERMANENT: StartupAlert("Be ready to take over at any time")
   },
 
   EventName.startupMaster: {
-    #ET.PERMANENT: startup_master_alert,
+    ET.PERMANENT: startup_master_alert,
   },
 
   # Car is recognized, but marked as dashcam only
@@ -1035,7 +1035,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.customStartupAlert: {
-    #ET.PERMANENT: custom_startup_alert,
+    ET.PERMANENT: custom_startup_alert,
   },
 
   EventName.forcingStop: {
