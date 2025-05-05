@@ -28,6 +28,15 @@ def create_eps_update(packer, bus, eps_stock_values, ea_simulated_torque):
   return packer.make_can_msg("LH_EPS_03", bus, values)
 
 
+def create_epb_control(packer, bus, activate_epb):
+  values = {
+    #"EPB_01_CRC": 0,  # Will be calculated by packer
+    #"EPB_01_BZ": 0,   # Counter will be managed by packer
+    "EPB_Schalterposition": 2 if activate_epb else 0,  # 2 = "apply", 0 = "release"
+  }
+  return packer.make_can_msg("EPB_01", bus, values)
+
+
 def create_lka_hud_control(packer, bus, ldw_stock_values, lat_active, steering_pressed, hud_alert, hud_control):
   values = {}
   if len(ldw_stock_values):

@@ -29,6 +29,11 @@ class CarController(CarControllerBase):
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
 
+    # auto EPB
+    self.ignition_last = False
+    self.epb_timer = 0
+    self.EPB_ACTIVATION_FRAMES = 15
+
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
@@ -90,6 +95,23 @@ class CarController(CarControllerBase):
       starting = actuators.longControlState == LongCtrlState.pid and (CS.esp_hold_confirmation or CS.out.vEgo < self.CP.vEgoStopping)
       can_sends.extend(self.CCS.create_acc_accel_control(self.packer_pt, CANBUS.pt, CS.acc_type, CC.longActive, accel,
                                                          acc_control, stopping, starting, CS.esp_hold_confirmation))
+
+    # **** EPB Controls ***************************************************** #
+
+    if self.frame % self.CCP.EPB_CONTROL_STEP == 0 and CS.out.standstill:
+      # Only activate EPB when ignition is OFF and vehicle is stopped
+      ignition_off = not bool(CS.pt_cp.vl["Klemmen_Status_01"]["ZAS_Kl_15"])
+
+      # Activate EPB only when both conditions are met
+      if self.ignition_last and ignition_off and CS.pt_cp.vl["EPB_01"]["EPB_Status"] == 0:
+        self.epb_timer = self.EPB_ACTIVATION_FRAMES
+
+      # Send messages until EPB_ACTIVATION_FRAMES are sent
+      if self.epb_timer > 0:
+        can_sends.append(self.CCS.create_epb_control(self.packer_pt, CANBUS.pt, True))
+        self.epb_timer -= 1
+
+      self.ignition_last = not ignition_off
 
     # **** HUD Controls ***************************************************** #
 

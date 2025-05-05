@@ -281,8 +281,8 @@ BO_ 1603 Einheiten_01: 8 Gateway_MQB
  SG_ KBI_Einheit_Sprache : 16|8@1+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 260 EPB_01: 8 Gateway_MQB
- SG_ EPB_01_CRC : 0|8@1+ (1,0) [0|255] "" Getriebe_DQ_Hybrid_MQB,Getriebe_DQ_MQB,Motor_Diesel_MQB,Motor_Hybrid_MQB,Motor_Otto_MQB
- SG_ EPB_01_BZ : 8|4@1+ (1,0) [0|15] "" Getriebe_DQ_Hybrid_MQB,Getriebe_DQ_MQB,Motor_Diesel_MQB,Motor_Hybrid_MQB,Motor_Otto_MQB
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" Getriebe_DQ_Hybrid_MQB,Getriebe_DQ_MQB,Motor_Diesel_MQB,Motor_Hybrid_MQB,Motor_Otto_MQB
+ SG_ COUNTER : 8|4@1+ (1,0) [0|15] "" Getriebe_DQ_Hybrid_MQB,Getriebe_DQ_MQB,Motor_Diesel_MQB,Motor_Hybrid_MQB,Motor_Otto_MQB
  SG_ EPB_QBit_Laengsbeschleunigung : 12|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ EPB_QBit_Pedalweg_Kuppl : 13|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ EPB_BCM2_Motor_Wakeup : 14|1@1+ (1,0) [0|1] "" Vector__XXX
