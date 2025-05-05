@@ -6,7 +6,7 @@ from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_driver_steer_torque_limits
 from openpilot.selfdrive.car.interfaces import CarControllerBase
 from openpilot.selfdrive.car.volkswagen import mqbcan, pqcan
-from openpilot.selfdrive.car.volkswagen.values import CANBUS, CarControllerParams, VolkswagenFlags
+from openpilot.selfdrive.car.volkswagen.values import CANBUS, CarControllerParams, VolkswagenFlags, GearShifter
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
 
@@ -30,7 +30,7 @@ class CarController(CarControllerBase):
     self.hca_frame_same_torque = 0
 
     # auto EPB
-    self.ignition_last = False
+    self.d_visited = False
     self.epb_timer = 0
     self.EPB_ACTIVATION_FRAMES = 15
 
@@ -99,11 +99,11 @@ class CarController(CarControllerBase):
     # **** EPB Controls ***************************************************** #
 
     if self.frame % self.CCP.EPB_CONTROL_STEP == 0 and CS.out.standstill:
-      # Only activate EPB when ignition is OFF and vehicle is stopped
-      ignition_off = not bool(CS.pt_cp.vl["Klemmen_Status_01"]["ZAS_Kl_15"])
+      # Only activate EPB when gear is in P vehicle is stopped
+      parked = CS.out.gearShifter == GearShifter.park
 
       # Activate EPB only when both conditions are met
-      if self.ignition_last and ignition_off and CS.pt_cp.vl["EPB_01"]["EPB_Status"] == 0:
+      if self.d_visited and parked and CS.pt_cp.vl["EPB_01"]["EPB_Status"] == 0:
         self.epb_timer = self.EPB_ACTIVATION_FRAMES
 
       # Send messages until EPB_ACTIVATION_FRAMES are sent
@@ -111,7 +111,8 @@ class CarController(CarControllerBase):
         can_sends.append(self.CCS.create_epb_control(self.packer_pt, CANBUS.pt, True))
         self.epb_timer -= 1
 
-      self.ignition_last = not ignition_off
+      if not self.d_visited:
+        self.d_visited = CS.out.gearShifter == GearShifter.drive
 
     # **** HUD Controls ***************************************************** #
 
