@@ -105,6 +105,7 @@ class CarController(CarControllerBase):
       # Activate EPB only when both conditions are met
       if self.d_visited and parked and CS.pt_cp.vl["EPB_01"]["EPB_Status"] == 0:
         self.epb_timer = self.EPB_ACTIVATION_FRAMES
+        self.d_visited = False
 
       # Send messages until EPB_ACTIVATION_FRAMES are sent
       if self.epb_timer > 0:
