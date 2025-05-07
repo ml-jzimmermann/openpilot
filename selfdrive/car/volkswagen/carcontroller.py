@@ -103,7 +103,7 @@ class CarController(CarControllerBase):
       parked = CS.out.gearShifter == GearShifter.park
 
       # Activate EPB only when both conditions are met
-      if self.d_visited and parked and CS.pt_cp.vl["EPB_01"]["EPB_Status"] == 0:
+      if self.d_visited and parked:
         self.epb_timer = self.EPB_ACTIVATION_FRAMES
         self.d_visited = False
 
